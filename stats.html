@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Titillium+Web:wght@200;300&display=swap"
+      rel="stylesheet"
+    />
+    <title>Shark Image with Speech Bubble</title>
+    <style>
+      #shark-image {
+        position: right;
+      }
+      #speech-bubble {
+        position: absolute;
+        background-color: #ffffff;
+        border: 1px solid #000000;
+        border-radius: 10px;
+        padding: 10px;
+        width: 200px;
+        top: -40px;
+        left: 40px;
+      }
+    </style>
+    <title>BYTE</title>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="https://glitch.com/favicon.ico" />
+
+    <!-- The website stylesheet -->
+    <link rel="stylesheet" href="/style.css" />
+
+    <!-- The website JavaScript file -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src="/script.js" defer></script>
+
+    <div class="topnav">
+      <h2 id="top-name">Otter Side</h2>
+      <img
+        id="otter"
+        src="https://cdn.glitch.global/83280d62-013a-4ad4-b913-210f3e867d3c/62d4cb5c-23d8-42a7-a2ac-38d1d8c202e9.image.png?v=1697392665558"
+        width="90"
+      />
+      <a href="about-us.html">About Us</a>
+      <a class="active" href="stats.html">Stats</a>
+      <a href="index.html">Home</a>
+    </div>
+  </head>
+
+  <body>
+    <div id="dropandlabel">
+      <label for="dropdown">Choose a Drug:</label>
+      <select id="dropdown">
+        <option value="">Select an option</option>
+      </select>
+    </div>
+
+    <div id="demoOne"></div>
+    <script src="data.csv"></script>
+    <script>
+      const demoData = [];
+      fetch("data.csv")
+        .then((response) => response.text())
+        .then((data) => {
+          const parsedData = Papa.parse(data, {
+            header: true,
+            skipEmptyLines: true,
+          });
+          const firstColumnOfThirdRow =
+            parsedData.data[3][Object.keys(parsedData.data[2])[0]];
+          const demoElement = document.getElementById("demoOne");
+        });
+    </script>
+
+    <p id="selectedText"></p>
+    <div id="charts">
+      <canvas id="percentageChart" width="50px" height="50px"></canvas>
+      <canvas id="additionalChart" width="50px" height="50px"></canvas>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script>
+      fetch("data.csv")
+        .then((response) => response.text())
+        .then((data) => {
+          const parsedData = Papa.parse(data, {
+            header: true,
+            skipEmptyLines: true,
+          });
+
+          const dropdown = document.getElementById("dropdown");
+          const selectedText = document.getElementById("selectedText");
+          const percentageChartCanvas =
+            document.getElementById("percentageChart");
+          const additionalChartCanvas =
+            document.getElementById("additionalChart");
+          const percentageCtx = percentageChartCanvas.getContext("2d");
+          const additionalCtx = additionalChartCanvas.getContext("2d");
+          let percentageChart = null;
+          let additionalChart = null;
+
+          // Extract the first, second, and third column data
+          const firstColumnData = parsedData.data.map(
+            (row) => row[Object.keys(row)[0]]
+          );
+          const secondColumnData = parsedData.data.map(
+            (row) => row[Object.keys(row)[1]]
+          );
+          const thirdColumnData = parsedData.data.map((row) =>
+            parseFloat(row[Object.keys(row)[2]])
+          );
+          const fourthColumnData = parsedData.data.map((row) =>
+            parseFloat(row[Object.keys(row)[3]])
+          );
+          const fifthColumnData = parsedData.data.map((row) =>
+            parseFloat(row[Object.keys(row)[4]])
+          );
+          const sixthColumnData = parsedData.data.map((row) =>
+            parseFloat(row[Object.keys(row)[5]])
+          );
+          const seventhColumnData = parsedData.data.map((row) =>
+            parseFloat(row[Object.keys(row)[6]])
+          );
+          const hexColors = [
+            "#D64045",
+            "#E0A09F",
+            "#E9FFF9",
+            "#9ED8DB",
+            "#467599",
+            "#1D3354",
+          ];
+
+          // Populate the dropdown with options
+          firstColumnData.forEach((value, index) => {
+            const option = document.createElement("option");
+            option.value = value;
+            option.text = value;
+            option.dataset.index = index; // Store the row index
+            dropdown.appendChild(option);
+          });
+
+          // Add event listener to handle dropdown selection
+          dropdown.addEventListener("change", function () {
+            const selectedIndex =
+              dropdown.options[dropdown.selectedIndex].dataset.index;
+            if (selectedIndex >= 0) {
+              selectedText.innerText = secondColumnData[selectedIndex];
+
+              // Create and render a pie chart for the selected row's third column
+              if (percentageChart) {
+                percentageChart.destroy();
+              }
+              percentageChart = new Chart(percentageCtx, {
+                type: "pie",
+                data: {
+                  labels: ["Women", "Men"],
+                  datasets: [
+                    {
+                      data: [
+                        thirdColumnData[selectedIndex],
+                        100 - thirdColumnData[selectedIndex],
+                      ],
+                      backgroundColor: [hexColors[0], hexColors[1]],
+                    },
+                  ],
+                },
+              });
+
+              // Create and render a pie chart for the selected row's fourth to seventh columns
+              if (additionalChart) {
+                additionalChart.destroy();
+              }
+              additionalChart = new Chart(additionalCtx, {
+                type: "pie",
+                data: {
+                  labels: [
+                    "White",
+                    "Black/ African American",
+                    "Asian",
+                    "Others",
+                  ],
+                  datasets: [
+                    {
+                      data: [
+                        fourthColumnData[selectedIndex],
+                        fifthColumnData[selectedIndex],
+                        sixthColumnData[selectedIndex],
+                        seventhColumnData[selectedIndex],
+                      ],
+                      backgroundColor: [
+                        hexColors[2],
+                        hexColors[3],
+                        hexColors[4],
+                        hexColors[5],
+                      ],
+                    },
+                  ],
+                },
+              });
+            } else {
+              selectedText.innerText = "";
+              if (percentageChart) {
+                percentageChart.destroy();
+              }
+              if (additionalChart) {
+                additionalChart.destroy();
+              }
+            }
+          });
+        });
+    </script>
+    <script src="script.js"></script>
+  </body>
+  <!-- Include Chart.js from a CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</html>
